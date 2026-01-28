@@ -1,6 +1,10 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 import cors from "cors";
+import path from "path";
+
+
+
 
 const app = express();
 app.use(cors());
@@ -9,6 +13,11 @@ app.use(express.json());
 console.log("server.ts file loaded");
 
 const SECRET = "jwt_secret_key";
+
+const __dirname = path.resolve();
+
+app.use(express.static(path.join(__dirname, "build")));
+
 
 // LOGIN API (JWT only – demo purpose)
 app.post("/login", (req, res) => {
@@ -29,7 +38,7 @@ app.get("/dashboard", (req, res) => {
   }
 
   try {
-    const token = authHeader.split(" ")[1]; // 👈 VERY IMPORTANT
+    const token = authHeader.split(" ")[1]; 
     jwt.verify(token, SECRET);
     res.json({ message: "Welcome to dashboard" });
   } catch (error) {
@@ -38,6 +47,11 @@ app.get("/dashboard", (req, res) => {
 });
 
 
-app.listen(5000, () => {
-  console.log("Server running on 5000");
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server running on ${PORT}`);
+});
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "client", "build"));
 });
